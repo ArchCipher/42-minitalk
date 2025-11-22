@@ -1,0 +1,6 @@
+printfTester/
+libftprintf.a
+*.o
+*.out
+*.out.dSYM/
+.DS_Store

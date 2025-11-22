@@ -1,0 +1,6 @@
+*.dSYM/
+README.md
+*.o
+client
+server
+minitalk_tester/
