@@ -31,7 +31,7 @@ void    sig_handler(int sig, void *handler, bool siginfo)
     sigaddset(&sa.sa_mask, SIGUSR2);
     if (sigaction(sig, &sa, NULL) < 0)
     {
-        ft_printf("Error: sigaction failed\n");
+        ft_printf(E_SIGACTION);
         exit(EXIT_FAILURE);
     }
 }
@@ -46,7 +46,7 @@ void    send_signal(pid_t pid, int sig)
 {
     if (kill(pid, sig) < 0)
     {
-        ft_printf("Error: kill failed\n");
+        ft_printf(E_KILL);
         exit(EXIT_FAILURE);
     }
 }

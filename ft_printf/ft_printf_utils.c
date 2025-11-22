@@ -26,7 +26,7 @@ int	ft_atoi(const char *str)
 	while (ft_isdigit(*str))
 	{
 		if (INT_MAX - num * 10 <= (*str - '0'))
-			return (INT_MAX);
+			return (errno = ERANGE, INT_MAX);
 		num = (num * 10) + (*str - '0');
 		str++;
 	}

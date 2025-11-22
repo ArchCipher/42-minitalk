@@ -8,13 +8,13 @@
 # include <stdlib.h>    // EXIT_FAILURE
 # include <unistd.h>    // write, getpid, pause
 
-# define E_USAGE "Usage: ./client.c [server PID] [message]\n"
+# define E_CLIENT_USAGE "Error\nUsage: ./client [server PID] [message]\n"
+# define E_INVAL_PID "Error\nInvalid server PID\n"
+# define E_SIGACTION "Error\nsigaction failed\n"
+# define E_KILL "Error\nkill failed\n"
 
-enum
-{
-    READY,
-    BUSY
-};
+# define BUSY 0
+# define READY 1
 
 // utils
 void    sig_handler(int, void *, bool);

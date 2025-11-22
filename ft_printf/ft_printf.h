@@ -13,9 +13,10 @@
 #ifndef FT_PRINTF_H
 # define FT_PRINTF_H
 
-# include <limits.h> // INT_MAX
-# include <stdarg.h> // va_start, va_arg, va_end
-# include <unistd.h> // write
+# include <errno.h>		// errno
+# include <limits.h>	// INT_MAX
+# include <stdarg.h>	// va_start, va_arg, va_end
+# include <unistd.h>	// write
 
 # define FMT_SPEC "cspdiuxX%"
 # define FLAGS "-+ 0#"
