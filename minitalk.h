@@ -1,25 +1,5 @@
-/*
-write
-◦ ft_printf or any equivalent YOU coded
-◦ signal
-◦ sigemptyset
-◦ sigaddset
-◦ sigaction
-◦ kill
-◦ getpid
-◦ malloc
-◦ free
-◦ pause
-◦ sleep
-◦ usleep
-◦ exit
-*/
-
-enum
-{
-    READY,
-    BUSY
-};
+#ifndef MINITALK_H
+# define MINITALK_H
 
 # include "ft_printf/ft_printf.h"    //printf
 # include <signal.h>    // sigaction, sigemptyset
@@ -30,5 +10,14 @@ enum
 
 # define E_USAGE "Usage: ./client.c [server PID] [message]\n"
 
+enum
+{
+    READY,
+    BUSY
+};
+
+// utils
 void    sig_handler(int, void *, bool);
 void    send_signal(pid_t, int);
+
+#endif

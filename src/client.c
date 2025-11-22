@@ -2,25 +2,47 @@
 
 volatile sig_atomic_t g_server = BUSY;
 
-void ack_handler(int sig)
+static void    send_char(char, pid_t);
+static void    ack_handler(int);
+static void    end_handler(int);
+
+/*
+    NAME
+        client
+    USAGE
+        ./client [server PID] [message]
+    DESCRIPTION:
+        Sends a message bit by bit to the server and receives an acknowledgment.
+        If the bit is 0, sends SIGUSR1, if the bit is 1, sends SIGUSR2.
+    EXTERNAL FUNC(S)
+        sigaction, sigemptyset, sigaddset, kill, getpid, usleep, write, exit
+        ft_printf
+*/
+
+int main (int ac, char **av)
 {
-    (void)sig;
-    g_server = READY;
+    pid_t server_pid;
+    char *msg;
+
+    if (ac != 3)
+        return (ft_printf(E_USAGE), EXIT_FAILURE);
+    server_pid = ft_atoi(av[1]);
+    msg = av[2];
+    sig_handler(SIGUSR1, ack_handler, false);
+    sig_handler(SIGUSR2, end_handler, false);
+    while(*msg)
+        send_char(*msg++, server_pid);
+    send_char('\0', server_pid);
+    return (EXIT_SUCCESS);
 }
 
-void end_handler(int sig)
-{
-    (void)sig;
-    write(STDOUT_FILENO, "OK!\n", 4);
-    exit(EXIT_SUCCESS); // is this needed?
-}
+/*
+DESCRIPTION:
+    It sends the message bit by bit to the server.
+    If the bit is 0, sends SIGUSR1, if the bit is 1, sends SIGUSR2.
+*/
 
-// 8 bits: 10000000
-// c = 10
-// 0000 0100
-// USR1 if 0 and USR2 if 1
-
-void    send_char(char c, pid_t server_pid)
+static void    send_char(char c, pid_t server_pid)
 {
     int bit;
 
@@ -38,18 +60,27 @@ void    send_char(char c, pid_t server_pid)
     }
 }
 
-int main (int ac, char **av)
-{
-    pid_t server_pid;
-    char *msg;
+/*
+DESCRIPTION:
+    It is the signal handler for the client that receives the acknowledgment signal from the server.
+*/
 
-    if (ac != 3)
-        return (ft_printf(E_USAGE), 0);
-    server_pid = ft_atoi(av[1]);
-    msg = av[2];
-    sig_handler(SIGUSR1, ack_handler, false);
-    sig_handler(SIGUSR2, end_handler, false);
-    while(*msg)
-        send_char(*msg++, server_pid);
-    send_char('\0', server_pid);
+static void ack_handler(int sig)
+{
+    ft_printf("ACK: %d\n", sig);
+    (void)sig;
+    g_server = READY;
+}
+
+/*
+DESCRIPTION:
+    It is the signal handler for the client that receives the end of message acknowledgment signal from the server.
+*/
+
+static void end_handler(int sig)
+{
+    ft_printf("END: %d\n", sig);
+    (void)sig;
+    write(STDOUT_FILENO, "OK!\n", 4);
+    exit(EXIT_SUCCESS); // is this needed?
 }

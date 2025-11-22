@@ -1,14 +1,37 @@
 # include <minitalk.h>
 
-/*
-if siginfo: 
-    union __sigaction_u = void (*__sa_handler)(int);
-     };
-else
-    union __sigaction_u = void (*__sa_sigaction)(int, siginfo_t *, void *);
+static void    handler (int, siginfo_t *, void *);
+static void    print_message(char, pid_t);
 
-uap: pointer to ucontext_t
-It’s mostly there for advanced debugging, context manipulation, or low-level OS programming
+/*
+    NAME
+        server
+    USAGE
+        ./server
+    DESCRIPTION:
+        Receives messages bit by bit from the client and prints them to the screen.
+        If the USR1 is received, the bit is 0, if the USR2 is received, the bit is 1.
+    EXTERNAL FUNC(S)
+        sigaction, sigemptyset, sigaddset, kill, getpid, pause, write, exit
+        ft_printf
+*/
+
+int main()
+{
+    pid_t   server_pid = getpid();
+    ft_printf("Server PID: [%d]\n", server_pid);
+    sig_handler(SIGUSR1, handler, true);
+    sig_handler(SIGUSR2, handler, true);
+    while(1)
+        pause();
+    return (EXIT_SUCCESS);
+}
+
+/*
+DESCRIPTION:
+    It is the signal handler for the server that receives the signal and the client PID.
+    It builds the message bit by bit and prints it to the screen when the message is complete.
+    It sends an acknowledgment signal to the client when the message is complete.
 */
 
 void    handler (int sig, siginfo_t *info, void *uap)
@@ -26,33 +49,27 @@ void    handler (int sig, siginfo_t *info, void *uap)
     else if (SIGUSR2 == sig)
         c |= 1;
     bit++;
-    // write(STDOUT_FILENO, "hello\n", 6);
     if (bit == CHAR_BIT)
     {
-        if (c == '\0')
-        {
-            write(STDOUT_FILENO, "\n", 1);
-            send_signal(client_pid, SIGUSR2);
-        }
-        else
-            write(STDOUT_FILENO, &c, 1);
+        print_message(c, client_pid);
         c = 0;
         bit = 0;
     }
     send_signal(client_pid, SIGUSR1);
 }
 
-int main()
-{
-    pid_t   server_pid = getpid();
-    ft_printf("Server PID: [%d]\n", server_pid);
-    sig_handler(SIGUSR1, handler, true);
-    sig_handler(SIGUSR2, handler, true);
-    while(1)
-        pause();
-}
-
 /*
-if SIUSR1 0
-if SIGUSR2 1
+DESCRIPTION:
+    It prints the message to the screen and sends an end of message acknowledgment signal to the client.
 */
+
+void print_message(char c, pid_t client_pid)
+{
+    if (c == '\0')
+    {
+        write(STDOUT_FILENO, "\n", 1);
+        send_signal(client_pid, SIGUSR2);
+    }
+    else
+        write(STDOUT_FILENO, &c, 1);  
+}
