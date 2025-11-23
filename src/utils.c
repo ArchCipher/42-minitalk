@@ -16,7 +16,7 @@ DESCRIPTION:
     It’s mostly there for advanced debugging, context manipulation, or low-level OS programming.
 */
 
-void    sig_handler(int sig, void *handler, bool siginfo)
+void    setup_handler(int sig, void *handler, bool siginfo)
 {
     struct sigaction sa;
 
@@ -33,21 +33,6 @@ void    sig_handler(int sig, void *handler, bool siginfo)
     if (sigaction(sig, &sa, NULL) < 0)
     {
         ft_printf(E_SIGACTION);
-        exit(EXIT_FAILURE);
-    }
-}
-
-/*
-DESCRIPTION:
-    It is a wrapper function that calls kill to send a signal to a process.
-    If the kill fails, it prints an error message and exits the program.
-*/
-
-void    send_signal(pid_t pid, int sig)
-{
-    if (kill(pid, sig) < 0)
-    {
-        ft_printf(E_KILL);
         exit(EXIT_FAILURE);
     }
 }

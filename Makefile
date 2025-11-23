@@ -1,31 +1,36 @@
-#			Library and Project names
-SERVER		= server
-CLIENT		= client
-BONUS_S		= server_bonus
-BONUS_C		= client_bonus
-PRINTF_LIB	= ft_printf
+#				Library and Project names
+SERVER			= server
+CLIENT			= client
+SERVER_BONUS	= server_bonus
+CLIENT_BONUS	= client_bonus
+PRINTF_LIB		= ft_printf
 
-#			Headers
-INC			= -I. -I$(PRINTF_LIB)
+#				Headers
+INC				= -I. -I$(PRINTF_LIB)
 
-#			Sources & Objects
-SRCDIR		= src
-SSRCS		= server
-CSRCS		= client
+#				Sources & Objects
+SRCDIR			= src/
 
-SRCS		= utils
+SRCS			= utils
+
+S_SRCS			= server
+C_SRCS			= client
+S_BSRCS			= server_bonus
+# C_BSRCS			= client
+
 # BSRCS		= 
 
-SERVER_SRCS	= $(addprefix $(SRCDIR)/, $(addsuffix .c, $(SSRCS)))
-CLIENT_SRCS	= $(addprefix $(SRCDIR)/, $(addsuffix .c, $(CSRCS)))
-SERVER_OBJS	= $(SERVER_SRCS:.c=.o)
-CLIENT_OBJS	= $(CLIENT_SRCS:.c=.o)
-SHARED_SCRS	= $(addprefix $(SRCDIR)/, $(addsuffix .c, $(SRCS)))
-SHARED_OBJS	= $(SHARED_SCRS:.c=.o)
-# MAN_SRCS	= $(addprefix $(SRCDIR)/, $(addsuffix .c, $(MSRCS)))
-# MAN_OBJS	= $(MAN_SRCS:.c=.o)
-# BONUS_SCRS	= $(addprefix $(SRCDIR)/, $(addsuffix _bonus.c, $(BSRCS)))
-# BONUS_OBJS	= $(BONUS_SCRS:.c=.o)
+SHARED_SRCS		= $(addprefix $(SRCDIR), $(addsuffix .c, $(SRCS)))
+SERVER_SRCS		= $(addprefix $(SRCDIR), $(addsuffix .c, $(S_SRCS)))
+CLIENT_SRCS		= $(addprefix $(SRCDIR), $(addsuffix .c, $(C_SRCS)))
+SERVER_BSRCS	= $(addprefix $(SRCDIR), $(addsuffix .c, $(S_BSRCS)))
+# CLIENT_BSRCS	= $(addprefix $(SRCDIR), $(addsuffix .c, $(C_BSRCS)))
+
+SHARED_OBJS		= $(SHARED_SRCS:.c=.o)
+SERVER_OBJS		= $(SERVER_SRCS:.c=.o)
+CLIENT_OBJS		= $(CLIENT_SRCS:.c=.o)
+SERVER_B_OBJS	= $(SERVER_BSRCS:.c=.o)
+# CLIENT_B_OBJS	= $(CLIENT_BSRCS:.c=.o)
 
 #			Compiler and Flags
 CC			= cc
@@ -49,7 +54,14 @@ $(SERVER): $(SERVER_OBJS) $(SHARED_OBJS)
 $(CLIENT): $(CLIENT_OBJS) $(SHARED_OBJS)
 	$(CC) $(FLAGS) $(SFLAGS) -g $^ $(FT_PRINTF) -o $@
 
-# bonus: $(BONUS)
+bonus: lib $(SERVER_BONUS) $(CLIENT)
+
+$(SERVER_BONUS): $(SERVER_B_OBJS) $(SHARED_OBJS)
+	$(CC) $(FLAGS) $(SFLAGS) -g $^ $(FT_PRINTF) -o $@
+
+# $(CLIENT_BONUS): $(CLIENT_B_OBJS) $(SHARED_OBJS)
+# 	$(CC) $(FLAGS) $(SFLAGS) -g $^ $(FT_PRINTF) -o $@
+
 # lib
 
 # $(BONUS): $(SHARED_OBJS) $(BONUS_OBJS)

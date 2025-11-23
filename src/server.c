@@ -1,5 +1,7 @@
 # include <minitalk.h>
 
+volatile sig_atomic_t g_error = 0;
+
 static void    handler (int, siginfo_t *, void *);
 static void    print_message(char, pid_t *);
 
@@ -20,8 +22,8 @@ int main()
 {
     pid_t   server_pid = getpid();
     ft_printf("Server PID: [%d]\n", server_pid);
-    sig_handler(SIGUSR1, handler, true);
-    sig_handler(SIGUSR2, handler, true);
+    setup_handler(SIGUSR1, handler, true);
+    setup_handler(SIGUSR2, handler, true);
     while(1)
         pause();
     return (EXIT_SUCCESS);
@@ -53,7 +55,7 @@ void    handler (int sig, siginfo_t *info, void *uap)
     if (SIGUSR2 == sig)
         c |= 1;
     bit++;
-    send_signal(client_pid, SIGUSR1);
+    send_server_signal(client_pid, SIGUSR1);
     if (bit == CHAR_BIT)
     {
         print_message(c, &client_pid);
