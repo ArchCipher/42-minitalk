@@ -56,7 +56,7 @@ DESCRIPTION:
 static void    handler (int sig, siginfo_t *info, void *uap)
 {
     static t_server_handler msg;
-    static char msg_buffer[BUFSIZ];
+    static char             msg_buffer[BUFSIZ];
 
     (void)uap;
     if (info == NULL || (info->si_pid && msg.client_pid != 0 && info->si_pid != msg.client_pid))

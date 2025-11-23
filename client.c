@@ -102,6 +102,12 @@ static void send_signal(pid_t pid, int sig)
     }
 }
 
+/*
+DESCRIPTION:
+    It waits for the acknowledgment signal from the server.
+    If signal is not received after MAX_RETRIES times, it prints an error message and exits the program.
+*/
+
 static void wait_for_ack(int *retry, bool eom)
 {
     usleep(SLEEP_MI_SEC);
