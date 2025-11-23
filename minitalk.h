@@ -5,7 +5,7 @@
 # include <signal.h>    // sigaction, sigemptyset
 # include <stdbool.h>   // boolean
 # include <stdlib.h>    // EXIT_FAILURE
-# include <unistd.h>    // write, getpid, pause
+# include <unistd.h>    // write, getpid, pause, usleep
 
 # define E_CLIENT_USAGE "Error\nUsage: ./client [server PID] [message]\n"
 # define E_INVAL_PID "Error\nInvalid server PID\n"
