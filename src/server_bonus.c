@@ -1,7 +1,10 @@
 # include <minitalk.h>
 
-static void    handler (int, siginfo_t *, void *);
-static void    print_message(char *, int *, pid_t *, bool);
+volatile sig_atomic_t g_state = READY;
+
+static void handler (int, siginfo_t *, void *);
+static int  send_signal(pid_t, int);
+static void flush_message(char *, t_server_handler *);
 
 /*
     NAME
@@ -22,84 +25,105 @@ int main()
 
     server_pid = getpid();
     ft_printf("Server PID: [%d]\n", server_pid);
-    sig_handler(SIGUSR1, handler, true);
-    sig_handler(SIGUSR2, handler, true);
+    setup_handler(SIGUSR1, handler, true);
+    setup_handler(SIGUSR2, handler, true);
     while(1)
+    {
         pause();
+        if (g_state == ERROR)
+        {
+            g_state = READY;
+            ft_printf(E_ACK);
+        }
+    }
     return (EXIT_SUCCESS);
 }
 
-// void    reset_static_vars()
-// {
-//     if (end_of bit)
-//     {
-//         *bit = 0;
-//         *c = 0;
-//         return ;
-//     }
-//     *msg_index = 0;
-//     msg[*msg_index] = '\0';
-// }
+void update_bit(t_server_handler *msg, int sig)
+{
+    (msg->c) <<= 1;
+    if (SIGUSR2 == sig)
+        (msg->c) |= 1;
+    (msg->bit)++;
+}
 
 /*
 DESCRIPTION:
     It is the signal handler for the server that receives the signal and the client PID.
     It builds the message bit by bit and prints it to the screen when the message is complete.
     If the signal is SIGUSR1, the bit is 0, if the signal is SIGUSR2, the bit is 1.
+
     It sends an acknowledgment signal to the client when the message is complete.
+    If sends SIGUSR1 as a per bit acknowledgement from the server.
+    If sends SIGUSR2 as an end of message acknowledgment.
 
     The third parameter of sigaction is uap: pointer to ucontext_t.
     It’s mostly there for advanced debugging, context manipulation, or low-level OS programming
 */
 
-void    handler (int sig, siginfo_t *info, void *uap)
+static void    handler (int sig, siginfo_t *info, void *uap)
 {
-    static char    msg[BUFSIZ + 1];
-    static int     msg_index;
-    static char     c;
-    static int      bit;
-    static pid_t    client_pid;
+    static t_server_handler msg;
+    static char msg_buffer[BUFSIZ];
 
     (void)uap;
-    if (info == NULL || (info->si_pid && client_pid != 0 && info->si_pid != client_pid))
+    if (info == NULL || (info->si_pid && msg.client_pid != 0 && info->si_pid != msg.client_pid))
         return ;
     if (info->si_pid)
-        client_pid = info->si_pid;
-    c = c << 1;
-    if (SIGUSR2 == sig)
-        c |= 1;
-    bit++;
-    send_signal(client_pid, SIGUSR1);
-    if (bit == CHAR_BIT)
+        msg.client_pid = info->si_pid;
+    update_bit(&msg, sig);
+    if (!send_signal(msg.client_pid, SIGUSR1))
     {
-        if (msg_index == BUFSIZ)
-            print_message(msg, &msg_index, &client_pid, false);
-        if (c == '\0')
-        {
-            msg[msg_index++] = '\n';
-            msg[msg_index] = c;
-            print_message(msg, &msg_index, &client_pid, true);
-        }
-        else
-            msg[msg_index++] = c;
-        bit = 0;
-        c = 0;
+        ft_memset(&msg, 0, sizeof(t_server_handler));
+        return ;
+    }
+    if (msg.bit == CHAR_BIT)
+        flush_message(msg_buffer, &msg);
+    if  (g_state == EOM)
+    {
+        g_state = READY;
+        send_signal(msg.client_pid, SIGUSR2);
+        msg.client_pid = 0;
     }
 }
 
 /*
 DESCRIPTION:
-    It prints the message to the screen and sends an end of message acknowledgment signal to the client.
+    It is a wrapper function that calls kill to send a signal to a process.
+    If the kill fails, it prints an error message and returns 0.
 */
 
-void print_message(char *msg, int *msg_index, pid_t *client_pid, bool is_end)
+
+static int send_signal(pid_t pid, int sig)
 {
-    write(STDOUT_FILENO, msg, *msg_index);
-    *msg_index = 0;
-    msg[*msg_index] = '\0';
-    if (is_end)
+    if (kill(pid, sig) < 0)
     {
-        send_signal(*client_pid, SIGUSR2);
-        *client_pid = 0;
+        write(STDERR_FILENO, "Error\nkill failed\n", 18);
+        g_state = ERROR;
+        return (0);
     }
+    return (1);
+}
+
+/*
+DESCRIPTION:
+    It prints the message to the stdout or saves the char in the message buffer.
+*/
+
+static void flush_message(char *msg_buffer, t_server_handler *msg)
+{
+    if (msg->c == '\0')
+    {
+        msg_buffer[msg->buf_idx++] = '\n';
+        g_state = EOM;
+    }
+    else
+        msg_buffer[msg->buf_idx++] = msg->c;
+    if (msg->buf_idx == BUFSIZ || msg->c == '\0')
+    {
+        write(STDOUT_FILENO, msg_buffer, msg->buf_idx);
+        msg->buf_idx = 0;
+    }
+    msg->bit = 0;
+    msg->c = 0;
 }
