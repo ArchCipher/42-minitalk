@@ -61,7 +61,7 @@ static void    handler (int sig, siginfo_t *info, void *uap)
     (void)uap;
     if (info == NULL || (info->si_pid && msg.client_pid != 0 && info->si_pid != msg.client_pid))
         return ;
-    if (info->si_pid)
+    if (msg.client_pid == 0)
         msg.client_pid = info->si_pid;
     (msg.c) <<= 1;
     if (SIGUSR2 == sig)
