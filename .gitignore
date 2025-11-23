@@ -3,6 +3,8 @@ README.md
 *.o
 client
 server
+client_bonus
+server_bonus
 minitalk_tester/
 Minitalk-Tester/
 venv/

@@ -9,36 +9,19 @@ PRINTF_LIB		= ft_printf
 INC				= -I. -I$(PRINTF_LIB)
 
 #				Sources & Objects
-SRCDIR			= src/
+SRCS			= server.c client.c utils.c
 
-SRCS			= utils
+OBJS			= $(SRCS:.c=.o)
+SERVER_OBJS		= server.o utils.o
+CLIENT_OBJS		= client.o utils.o
 
-S_SRCS			= server
-C_SRCS			= client
-S_BSRCS			= server_bonus
-# C_BSRCS			= client
+#				Compiler and Flags
+CC				= cc
+FLAGS			= -Wall -Werror -Wextra
+SFLAGS			= -fsanitize=address
 
-# BSRCS		= 
-
-SHARED_SRCS		= $(addprefix $(SRCDIR), $(addsuffix .c, $(SRCS)))
-SERVER_SRCS		= $(addprefix $(SRCDIR), $(addsuffix .c, $(S_SRCS)))
-CLIENT_SRCS		= $(addprefix $(SRCDIR), $(addsuffix .c, $(C_SRCS)))
-SERVER_BSRCS	= $(addprefix $(SRCDIR), $(addsuffix .c, $(S_BSRCS)))
-# CLIENT_BSRCS	= $(addprefix $(SRCDIR), $(addsuffix .c, $(C_BSRCS)))
-
-SHARED_OBJS		= $(SHARED_SRCS:.c=.o)
-SERVER_OBJS		= $(SERVER_SRCS:.c=.o)
-CLIENT_OBJS		= $(CLIENT_SRCS:.c=.o)
-SERVER_B_OBJS	= $(SERVER_BSRCS:.c=.o)
-# CLIENT_B_OBJS	= $(CLIENT_BSRCS:.c=.o)
-
-#			Compiler and Flags
-CC			= cc
-FLAGS		= -Wall -Werror -Wextra
-SFLAGS		= -fsanitize=address
-
-#			Library
-FT_PRINTF	= -L$(PRINTF_LIB) -lftprintf
+#				Library
+FT_PRINTF		= -L$(PRINTF_LIB) -lftprintf
 
 %.o: %.c
 	$(CC) $(FLAGS) $(SFLAGS) $(INC) -g -c $< -o $@
@@ -48,37 +31,28 @@ all: lib $(SERVER) $(CLIENT)
 lib:
 	@make -C $(PRINTF_LIB)
 
-$(SERVER): $(SERVER_OBJS) $(SHARED_OBJS)
+$(SERVER): $(SERVER_OBJS)
 	$(CC) $(FLAGS) $(SFLAGS) -g $^ $(FT_PRINTF) -o $@
 
-$(CLIENT): $(CLIENT_OBJS) $(SHARED_OBJS)
+$(CLIENT): $(CLIENT_OBJS)
 	$(CC) $(FLAGS) $(SFLAGS) -g $^ $(FT_PRINTF) -o $@
 
-bonus: lib $(SERVER_BONUS) $(CLIENT)
+bonus: all $(SERVER_BONUS) $(CLIENT_BONUS)
 
-$(SERVER_BONUS): $(SERVER_B_OBJS) $(SHARED_OBJS)
+$(SERVER_BONUS): $(SERVER_OBJS)
 	$(CC) $(FLAGS) $(SFLAGS) -g $^ $(FT_PRINTF) -o $@
 
-# $(CLIENT_BONUS): $(CLIENT_B_OBJS) $(SHARED_OBJS)
-# 	$(CC) $(FLAGS) $(SFLAGS) -g $^ $(FT_PRINTF) -o $@
-
-# lib
-
-# $(BONUS): $(SHARED_OBJS) $(BONUS_OBJS)
-# 	$(CC) $(FLAGS) $(SFLAGS) -g $^ $(API_OS) -o $@
-# $(FT_PRINTF)
+$(CLIENT_BONUS): $(CLIENT_OBJS)
+	$(CC) $(FLAGS) $(SFLAGS) -g $^ $(FT_PRINTF) -o $@
 
 clean:
 	make -C $(PRINTF_LIB) clean
-	rm -f $(SERVER_OBJS) $(CLIENT_OBJS) $(SHARED_OBJS)
-# 	$(SHARED_OBJS) $(MAN_OBJS) $(BONUS_OBJS)
+	rm -f $(OBJS)
 
 fclean: clean
 	make -C $(PRINTF_LIB) fclean
-	rm -f $(SERVER) $(CLIENT) $(SHARED_OBJS)
+	rm -f $(SERVER) $(CLIENT) $(SERVER_BONUS) $(CLIENT_BONUS)
 
-re: fclean all
-# bonus
+re: fclean all bonus
 
-.PHONY: all clean fclean re lib 
-# bonus
+.PHONY: all clean fclean re bonus lib
