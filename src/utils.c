@@ -13,12 +13,13 @@ DESCRIPTION:
     If this bit is set, the handler function prototype is assumed to be the one pointed
     to by the sa_sigaction member of struct sigaction (the second prototype).
     The third parameter of sigaction is uap: pointer to ucontext_t.
-    It’s mostly there for advanced debugging, context manipulation, or low-level OS programming
+    It’s mostly there for advanced debugging, context manipulation, or low-level OS programming.
 */
 
 void    sig_handler(int sig, void *handler, bool siginfo)
 {
     struct sigaction sa;
+
     if (siginfo)
     {
         sa.sa_sigaction = handler;

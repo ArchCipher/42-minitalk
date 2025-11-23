@@ -33,6 +33,9 @@ DESCRIPTION:
     It builds the message bit by bit and prints it to the screen when the message is complete.
     If the signal is SIGUSR1, the bit is 0, if the signal is SIGUSR2, the bit is 1.
     It sends an acknowledgment signal to the client when the message is complete.
+
+    The third parameter of sigaction is uap: pointer to ucontext_t.
+    It’s mostly there for advanced debugging, context manipulation, or low-level OS programming
 */
 
 void    handler (int sig, siginfo_t *info, void *uap)
