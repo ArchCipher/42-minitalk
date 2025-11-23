@@ -4,7 +4,6 @@
 # include "ft_printf/ft_printf.h"    //printf
 # include <signal.h>    // sigaction, sigemptyset
 # include <stdbool.h>   // boolean
-# include <stdio.h>     // perror
 # include <stdlib.h>    // EXIT_FAILURE
 # include <unistd.h>    // write, getpid, pause
 
@@ -16,6 +15,7 @@
 # define E_NO_EOM_ACK "Error\nMessage sent, but no final acknowledgment\n"
 # define SLEEP_MI_SEC 50
 # define MAX_RETRIES 600
+# define BUFSIZE 1024
 
 enum
 {

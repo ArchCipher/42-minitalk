@@ -56,7 +56,7 @@ DESCRIPTION:
 static void    handler (int sig, siginfo_t *info, void *uap)
 {
     static t_server_handler msg;
-    static char             msg_buffer[BUFSIZ];
+    static char             msg_buffer[BUFSIZE];
 
     (void)uap;
     if (info == NULL || (info->si_pid && msg.client_pid != 0 && info->si_pid != msg.client_pid))
@@ -114,7 +114,7 @@ static void flush_message(char *msg_buffer, t_server_handler *msg)
     }
     else
         msg_buffer[msg->buf_idx++] = msg->c;
-    if (msg->buf_idx == BUFSIZ || msg->c == '\0')
+    if (msg->buf_idx == BUFSIZE || msg->c == '\0')
     {
         write(STDOUT_FILENO, msg_buffer, msg->buf_idx);
         msg->buf_idx = 0;
