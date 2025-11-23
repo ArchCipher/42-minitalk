@@ -5,20 +5,7 @@ volatile sig_atomic_t g_server_state = READY;
 static void send_char(char, pid_t);
 static void ack_handler(int);
 static void send_signal(pid_t, int);
-
-void wait_for_ack(int *retry, bool eom)
-{
-    usleep(SLEEP_MI_SEC);
-    (*retry)++;
-    if ((*retry) == MAX_RETRIES)
-    {
-        if (!eom)
-            ft_printf(E_NO_ACK);
-        else
-            ft_printf(E_NO_EOM_ACK);
-        exit(EXIT_FAILURE); 
-    }
-}
+static void wait_for_ack(int *, bool);
 
 /*
     NAME
@@ -91,9 +78,9 @@ DESCRIPTION:
 
 static void ack_handler(int sig)
 {
-    if (SIGUSR1 == sig) // && g_server_state != EOM_ACK)
+    if (SIGUSR1 == sig && g_server_state != EOM_ACK)
         g_server_state = READY;
-    else if (SIGUSR2 == sig) // && g_server_state != BUSY)
+    else if (SIGUSR2 == sig)
     {
         write(STDOUT_FILENO, "Message sent successfully!\n", 27);
         g_server_state = EOM_ACK;
@@ -112,5 +99,19 @@ static void send_signal(pid_t pid, int sig)
     {
         write(STDERR_FILENO, "Error\nkill failed\n", 18);
         exit (EXIT_FAILURE);
+    }
+}
+
+static void wait_for_ack(int *retry, bool eom)
+{
+    usleep(SLEEP_MI_SEC);
+    (*retry)++;
+    if ((*retry) == MAX_RETRIES)
+    {
+        if (!eom)
+            ft_printf(E_NO_ACK);
+        else
+            ft_printf(E_NO_EOM_ACK);
+        exit(EXIT_FAILURE); 
     }
 }
