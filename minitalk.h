@@ -2,9 +2,9 @@
 # define MINITALK_H
 
 # include "ft_printf/ft_printf.h"    //printf
-# include <signal.h>    // sigaction, sigemptyset
+# include <signal.h>    // kill, sigaction, sigemptyset, sigaddset
 # include <stdbool.h>   // boolean
-# include <stdlib.h>    // EXIT_FAILURE
+# include <stdlib.h>    // EXIT_FAILURE, exit
 # include <unistd.h>    // write, getpid, pause, usleep
 
 # define E_CLIENT_USAGE "Error\nUsage: ./client [server PID] [message]\n"
@@ -35,6 +35,6 @@ typedef struct s_server_handler
 }           t_server_handler;
 
 // utils
-void    setup_handler(int, void *, bool);
+void    setup_handler(int sig, void *handler, bool siginfo);
 
 #endif

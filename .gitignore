@@ -1,5 +1,4 @@
 *.dSYM/
-README.md
 *.o
 client
 server

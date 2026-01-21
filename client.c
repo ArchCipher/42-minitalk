@@ -2,10 +2,10 @@
 
 volatile sig_atomic_t g_server_state = READY;
 
-static void send_char(char, pid_t);
-static void ack_handler(int);
-static void send_signal(pid_t, int);
-static void wait_for_ack(int *, bool);
+static void send_char(char c, pid_t server_pid);
+static void ack_handler(int sig);
+static void send_signal(pid_t pid, int sig);
+static void wait_for_ack(int *retry, bool eom);
 
 /*
     NAME
@@ -91,6 +91,9 @@ static void ack_handler(int sig)
 DESCRIPTION:
     It is a wrapper function that calls kill to send a signal to a process.
     If the kill fails, it prints an error message and exits the program.
+
+    It is not signal-safe, for signal safe version, check the server version of
+    send_signal.
 */
 
 static void send_signal(pid_t pid, int sig)

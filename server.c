@@ -2,9 +2,9 @@
 
 volatile sig_atomic_t g_state = READY;
 
-static void handler (int, siginfo_t *, void *);
-static int  send_signal(pid_t, int);
-static void flush_message(char *, t_server_handler *);
+static void handler (int sig, siginfo_t *info, void *uap);
+static int  send_signal(pid_t pid, int sig);
+static void flush_message(char *msg_buffer, t_server_handler *msg);
 
 /*
     NAME
@@ -86,6 +86,8 @@ static void    handler (int sig, siginfo_t *info, void *uap)
 DESCRIPTION:
     It is a wrapper function that calls kill to send a signal to a process.
     If the kill fails, it prints an error message and returns 0.
+    
+    Unlike the client, it is signal-safe version, that does not use exit().
 */
 
 
