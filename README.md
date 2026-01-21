@@ -64,15 +64,15 @@ minitalk/
 ```
 
 **Key Files:**
-- **server.c** - Receives signals and reconstructs messages
-- **client.c** - Sends messages encoded as binary signals
-- **utils.c** - Helper functions for signal handling
+- **[server.c](server.c)** - Receives signals and reconstructs messages
+- **[client.c](client.c)** - Sends messages encoded as binary signals
+- **[utils.c](utils.c)** - Helper functions for signal handling
 
 ---
 
 ## Program Structure
 
-### Server (`server.c`)
+### Server ([`server.c`](server.c))
 - **Function:** Receives signals and reconstructs messages
 - **Process:**
   1. Display server PID
@@ -81,7 +81,7 @@ minitalk/
   4. Print received messages
   5. Send acknowledgment after each bit
 
-### Client (`client.c`)
+### Client ([`client.c`](client.c))
 - **Function:** Sends messages to server
 - **Process:**
   1. Take server PID and message as arguments
@@ -95,64 +95,27 @@ minitalk/
 ## Technical Implementation
 
 ### Bit Transmission
-
-```c
-// Client: Send character bit by bit
-void send_char(int pid, char c)
-{
-    int i = 0;
-    while (i < 8)
-    {
-        if (c & (1 << i))
-            kill(pid, SIGUSR2);  // Send 1
-        else
-            kill(pid, SIGUSR1);  // Send 0
-        i++;
-        usleep(100);  // Wait for acknowledgment
-    }
-}
-```
+See [`send_char()`](client.c#L52) in `client.c` for the implementation that sends characters bit by bit.
 
 ### Bit Reception
-
-```c
-// Server: Receive bit and reconstruct character
-void handle_signal(int sig)
-{
-    static char c = 0;
-    static int bit_count = 0;
-    
-    if (sig == SIGUSR2)
-        c |= (1 << bit_count);  // Set bit to 1
-    
-    bit_count++;
-    if (bit_count == 8)
-    {
-        write(1, &c, 1);  // Print character
-        c = 0;
-        bit_count = 0;
-    }
-    
-    kill(client_pid, SIGUSR1);  // Send acknowledgment
-}
-```
+See [`handler()`](server.c#L56) in `server.c` for the signal handler that receives bits and reconstructs characters.
 
 ---
 
 ## Features
 
 ### Mandatory Version
-- ✅ Basic client-server communication
-- ✅ Message transmission via signals
-- ✅ Character-by-character reconstruction
-- ✅ Server displays received messages
+- Basic client-server communication
+- Message transmission via signals
+- Character-by-character reconstruction
+- Server displays received messages
 
 ### Bonus Version
-- ✅ Unicode support (handles multi-byte characters)
-- ✅ Server acknowledgment system
-- ✅ Client receives server confirmation
-- ✅ Enhanced error handling
-- ✅ Support for special characters and emojis
+- Unicode support (handles multi-byte characters)
+- Server acknowledgment system
+- Client receives server confirmation
+- Enhanced error handling
+- Support for special characters and emojis
 
 ---
 
@@ -183,34 +146,6 @@ make bonus
 
 ---
 
-## Key Challenges & Solutions
-
-### Challenge 1: Signal Delivery Reliability
-**Problem:** Signals can be lost or delivered out of order  
-**Solution:** Implement acknowledgment system - server confirms each bit received
-
-### Challenge 2: Synchronization
-**Problem:** Client and server must stay synchronized  
-**Solution:** Client waits for acknowledgment before sending next bit, use `usleep()` for timing
-
-### Challenge 3: Process ID Exchange
-**Problem:** Client needs server PID to send signals  
-**Solution:** Server prints PID on startup, client takes PID as command-line argument
-
-### Challenge 4: Bit Manipulation
-**Problem:** Encoding characters as binary signals  
-**Solution:** Use bitwise operations (`&`, `|`, `<<`) to extract and set bits
-
-### Challenge 5: Unicode Support (Bonus)
-**Problem:** Handling multi-byte UTF-8 characters  
-**Solution:** Send message length first, then send bytes (not characters) bit by bit
-
-### Challenge 6: Signal Handler Limitations
-**Problem:** Signal handlers have restrictions on what functions can be called  
-**Solution:** Use `write()` instead of `printf()`, set global flags, process in main loop
-
----
-
 ## Technical Highlights
 
 - **Signal Safety:** Proper signal handler implementation following async-signal-safe guidelines
@@ -230,18 +165,12 @@ The project can be tested with:
 - Unicode character testing (bonus)
 
 **Test Cases:**
-- ✅ Short messages
-- ✅ Long messages
-- ✅ Special characters
-- ✅ Unicode characters (bonus)
-- ✅ Empty messages
-- ✅ Multiple clients
-
----
-
-## Project Status
-
-✅ **Completed** - Both mandatory and bonus versions implemented
+- Short messages
+- Long messages
+- Special characters
+- Unicode characters (bonus)
+- Empty messages
+- Multiple clients
 
 ---
 
